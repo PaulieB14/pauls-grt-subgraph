@@ -6,7 +6,7 @@ dataSources:
     name: billing
     network: arbitrum-one
     source:
-      address: '0x1b07d3344188908fb6deceac381f3ee63c48477a'
+      address: "0x1b07d3344188908fb6deceac381f3ee63c48477a"
       abi: billing
       startBlock: 42472346
     mapping:
@@ -21,16 +21,16 @@ dataSources:
       eventHandlers:
         - event: TokensAdded(indexed address,uint256)
           handler: handleTokensAdded
-        - event: TokensPulled(indexed address,uint256)
-          handler: handleTokensPulled
         - event: TokensRemoved(indexed address,indexed address,uint256)
           handler: handleTokensRemoved
+        - event: TokensPulled(indexed address,uint256)
+          handler: handleTokensPulled
       file: ./src/billing.ts
   - kind: ethereum
     name: GNS
     network: arbitrum-one
     source:
-      address: '0x5cBDB6cfB91d435c5899Fc05741e7D371fd71667'
+      address: "0x5cBDB6cfB91d435c5899Fc05741e7D371fd71667"
       abi: GNS
       startBlock: 113533076
     mapping:

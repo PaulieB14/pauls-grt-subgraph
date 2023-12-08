@@ -21,10 +21,10 @@ dataSources:
       eventHandlers:
         - event: TokensAdded(indexed address,uint256)
           handler: handleTokensAdded
-        - event: TokensPulled(indexed address,uint256)
-          handler: handleTokensPulled
         - event: TokensRemoved(indexed address,indexed address,uint256)
           handler: handleTokensRemoved
+        - event: TokensPulled(indexed address,uint256)
+          handler: handleTokensPulled
       file: billing/billing.wasm
   - kind: ethereum
     name: GNS

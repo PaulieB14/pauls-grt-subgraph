@@ -176,12 +176,13 @@ export class Account extends Entity {
     this.set("billingBalance", Value.fromBigInt(value));
   }
 
-  get subgraphs(): SubgraphLoader {
-    return new SubgraphLoader(
-      "Account",
-      this.get("id")!.toString(),
-      "subgraphs"
-    );
+  get subgraphs(): Array<string> {
+    let value = this.get("subgraphs");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toStringArray();
+    }
   }
 }
 
@@ -267,23 +268,5 @@ export class Transaction extends Entity {
     } else {
       this.set("timestamp", Value.fromBigInt(<BigInt>value));
     }
-  }
-}
-
-export class SubgraphLoader extends Entity {
-  _entity: string;
-  _field: string;
-  _id: string;
-
-  constructor(entity: string, id: string, field: string) {
-    super();
-    this._entity = entity;
-    this._id = id;
-    this._field = field;
-  }
-
-  load(): Subgraph[] {
-    let value = store.loadRelated(this._entity, this._id, this._field);
-    return changetype<Subgraph[]>(value);
   }
 }
