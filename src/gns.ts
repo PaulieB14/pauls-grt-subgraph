@@ -8,7 +8,6 @@ import {
   SubgraphPublished as SubgraphPublishedEvent,
   SubgraphUpgraded as SubgraphUpgradedEvent,
   SubgraphVersionUpdated as SubgraphVersionUpdatedEvent,
-  SubgraphQueried as SubgraphQueriedEvent, // Assuming this event exists
 } from '../generated/GNS/GNS'
 import {
   Account as AccountEntity,
