@@ -57,6 +57,7 @@ export function handleSubgraphPublished(event: SubgraphPublishedEvent): void {
   let subgraph = SubgraphEntity.load(event.params.subgraphID.toHex())
   if (subgraph === null) {
     subgraph = new SubgraphEntity(event.params.subgraphID.toHex())
+    subgraph.name = event.params.name // Set the name after creating the entity
     subgraph.currentVersionHash = event.params.subgraphDeploymentID.toHex()
     let account = createOrLoadAccount(event.transaction.from.toHexString())
     subgraph.account = account.id
