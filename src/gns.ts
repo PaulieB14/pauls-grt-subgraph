@@ -83,14 +83,3 @@ export function handleSubgraphVersionUpdated(
     subgraph.save()
   }
 }
-
-// Assume this event exists for querying a subgraph
-export function handleSubgraphQueried(event: SubgraphQueriedEvent): void {
-  let subgraph = SubgraphEntity.load(event.params.subgraphID.toHex())
-  if (subgraph !== null) {
-    // Example fee calculation - can be adjusted based on your logic
-    const queryFee = BigInt.fromI32(1) // Fixed fee per query
-    subgraph.queryFees = subgraph.queryFees.plus(queryFee)
-    subgraph.save()
-  }
-}
