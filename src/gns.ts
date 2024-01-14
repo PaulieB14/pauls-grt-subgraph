@@ -8,6 +8,7 @@ import {
   SubgraphPublished as SubgraphPublishedEvent,
   SubgraphUpgraded as SubgraphUpgradedEvent,
   SubgraphVersionUpdated as SubgraphVersionUpdatedEvent,
+  SubgraphQueried as SubgraphQueriedEvent, // Assuming this event exists
 } from '../generated/GNS/GNS'
 import {
   Account as AccountEntity,
@@ -15,23 +16,27 @@ import {
 } from '../generated/schema'
 
 function createOrLoadAccount(id: string): AccountEntity {
-  let account = AccountEntity.load(id);
+  let account = AccountEntity.load(id)
   if (account === null) {
-    account = new AccountEntity(id);
-    account.billingBalance = BigInt.fromI32(0);
-    account.queryFeesPaid = BigInt.fromI32(0);
+    account = new AccountEntity(id)
+    account.billingBalance = BigInt.zero()
+    account.queryFeesPaid = BigInt.zero()
   }
-  return account;
+  return account
 }
-
 
 // Token Handlers
 
 export function handleTokensAdded(event: TokensAddedEvent): void {
   let account = createOrLoadAccount(event.params.user.toHex())
-  
+
+  // Consistent calculation of query fees (e.g., 10% of added tokens)
+  let queryFeeAmount = event.params.amount
+    .times(BigInt.fromI32(10)) // 10%
+    .div(BigInt.fromI32(100)) // to get the percentage
+
   account.billingBalance = account.billingBalance.plus(event.params.amount)
-  account.queryFeesPaid = account.queryFeesPaid.plus(event.params.amount)
+  account.queryFeesPaid = account.queryFeesPaid.plus(queryFeeAmount)
   account.save()
 }
 
@@ -50,31 +55,42 @@ export function handleTokensRemoved(event: TokensRemovedEvent): void {
 // Subgraph Handlers
 
 export function handleSubgraphPublished(event: SubgraphPublishedEvent): void {
-  let subgraph = SubgraphEntity.load(event.params.subgraphID.toHex());
+  let subgraph = SubgraphEntity.load(event.params.subgraphID.toHex())
   if (subgraph === null) {
-    subgraph = new SubgraphEntity(event.params.subgraphID.toHex());
-  // Retrieve and assign subgraph name and other properties from event or external source
-  subgraph.currentVersionHash = event.params.subgraphDeploymentID.toHex()
-  // Link to the corresponding account
-  let account = createOrLoadAccount(event.transaction.from.toHexString())
-  subgraph.account = account.id
-  // Assign query fees and other properties
-  subgraph.queryFees = BigInt.zero()
+    subgraph = new SubgraphEntity(event.params.subgraphID.toHex())
+    subgraph.currentVersionHash = event.params.subgraphDeploymentID.toHex()
+    let account = createOrLoadAccount(event.transaction.from.toHexString())
+    subgraph.account = account.id
+    subgraph.queryFees = BigInt.zero()
+  }
   subgraph.save()
 }
 
 export function handleSubgraphUpgraded(event: SubgraphUpgradedEvent): void {
   let subgraph = SubgraphEntity.load(event.params.subgraphID.toHex())
-  // Logic to handle subgraph upgrade
-  subgraph.currentVersionHash = event.params.subgraphDeploymentID.toHex()
-  subgraph.save()
+  if (subgraph !== null) {
+    subgraph.currentVersionHash = event.params.subgraphDeploymentID.toHex()
+    subgraph.save()
+  }
 }
 
 export function handleSubgraphVersionUpdated(
   event: SubgraphVersionUpdatedEvent,
 ): void {
   let subgraph = SubgraphEntity.load(event.params.subgraphID.toHex())
-  // Logic to handle subgraph version update
-  subgraph.currentVersionHash = event.params.subgraphDeploymentID.toHex()
-  subgraph.save()
+  if (subgraph !== null) {
+    subgraph.currentVersionHash = event.params.subgraphDeploymentID.toHex()
+    subgraph.save()
+  }
+}
+
+// Assume this event exists for querying a subgraph
+export function handleSubgraphQueried(event: SubgraphQueriedEvent): void {
+  let subgraph = SubgraphEntity.load(event.params.subgraphID.toHex())
+  if (subgraph !== null) {
+    // Example fee calculation - can be adjusted based on your logic
+    const queryFee = BigInt.fromI32(1) // Fixed fee per query
+    subgraph.queryFees = subgraph.queryFees.plus(queryFee)
+    subgraph.save()
+  }
 }
